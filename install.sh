@@ -69,7 +69,7 @@ EOF
 
 echo "TURN_SECRET=${TURN_SECRET}" > /etc/selkies.env
 chmod 600 /etc/selkies.env
-chown ${USER}:${USER} /etc/selkies.env
+chown ${USER}: /etc/selkies.env
 
 # ─── 4. Systemd services ──────────────────────────────────────────────────────
 echo "[4/8] Creating systemd services..."
