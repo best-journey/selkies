@@ -65,7 +65,14 @@ static-auth-secret=${TURN_SECRET}
 no-multicast-peers
 no-cli
 log-file=/var/log/turnserver.log
+min-port=49152
+max-port=65535
 EOF
+
+# Open TURN relay port range in firewall
+if command -v ufw &>/dev/null && ufw status | grep -q "Status: active"; then
+  ufw allow 49152:65535/udp
+fi
 
 echo "TURN_SECRET=${TURN_SECRET}" > /etc/selkies.env
 chmod 600 /etc/selkies.env
