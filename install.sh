@@ -40,8 +40,8 @@ apt-get install -y \
 # ─── 2. Selkies-GStreamer ──────────────────────────────────────────────────────
 echo "[2/8] Installing selkies-gstreamer..."
 curl -fsSL "https://github.com/selkies-project/selkies/releases/download/v${SELKIES_VERSION}/selkies_gstreamer-${SELKIES_VERSION}-py3-none-any.whl" \
-  -o /tmp/selkies_gstreamer.whl
-pip3 install --break-system-packages /tmp/selkies_gstreamer.whl
+  -o "/tmp/selkies_gstreamer-${SELKIES_VERSION}-py3-none-any.whl"
+pip3 install --break-system-packages "/tmp/selkies_gstreamer-${SELKIES_VERSION}-py3-none-any.whl"
 
 echo "[2b/8] Downloading web assets..."
 mkdir -p /opt/selkies/web
