@@ -107,15 +107,20 @@ User=${USER}
 Environment=DISPLAY=:99
 Environment=XDG_SESSION_TYPE=x11
 Environment=XDG_RUNTIME_DIR=/run/user/${UID_NUM}
-Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${UID_NUM}/bus
+Environment=GNOME_SHELL_SESSION_MODE=ubuntu
+Environment=XDG_CURRENT_DESKTOP=ubuntu:GNOME
+Environment=XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
 ExecStartPre=/bin/sleep 2
-ExecStart=/usr/bin/dbus-launch --exit-with-session /usr/bin/gnome-session
+ExecStart=/usr/bin/dbus-run-session -- /usr/bin/gnome-session --disable-acceleration-check
 Restart=always
 RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
 EOF
+
+# Disable GDM so it doesn't interfere with the virtual display
+systemctl disable gdm3 2>/dev/null || true
 
 cat > /etc/systemd/system/selkies.service <<EOF
 [Unit]
@@ -175,7 +180,7 @@ nginx -t && systemctl reload nginx
 
 # ─── 7. Let's Encrypt ─────────────────────────────────────────────────────────
 echo "[7/8] Obtaining Let's Encrypt certificate..."
-certbot certonly --nginx -d ${DOMAIN} --non-interactive --agree-tos --email ${CERTBOT_EMAIL}
+certbot certonly --nginx -d ${DOMAIN} --non-interactive --agree-tos --email ${CERTBOT_EMAIL} --keep-until-expiring
 
 echo "[7b/8] Updating nginx with HTTPS config..."
 cat > /etc/nginx/sites-available/selkies <<EOF
