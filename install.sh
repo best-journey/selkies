@@ -110,6 +110,7 @@ Environment=XDG_RUNTIME_DIR=/run/user/${UID_NUM}
 Environment=GNOME_SHELL_SESSION_MODE=ubuntu
 Environment=XDG_CURRENT_DESKTOP=ubuntu:GNOME
 Environment=XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
+Environment=XDG_SESSION_CLASS=user
 ExecStartPre=/bin/sleep 2
 ExecStart=/usr/bin/dbus-run-session -- /usr/bin/gnome-session --disable-acceleration-check
 Restart=always
@@ -119,7 +120,8 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-# Disable GDM so it doesn't interfere with the virtual display
+# Stop and disable GDM so it doesn't interfere with the virtual display
+systemctl stop gdm3 2>/dev/null || true
 systemctl disable gdm3 2>/dev/null || true
 
 cat > /etc/systemd/system/selkies.service <<EOF
@@ -143,7 +145,7 @@ ExecStart=/usr/local/bin/selkies-gstreamer \
   --turn_port=3478 \
   --turn_shared_secret=\${TURN_SECRET} \
   --enable_basic_auth=false \
-  --encoder=x264enc \
+  --encoder=vp8enc \
   --framerate=30
 Restart=always
 RestartSec=5
@@ -237,6 +239,15 @@ sleep 3
 systemctl start selkies-gnome
 sleep 5
 systemctl start selkies
+
+# Disable GNOME screen lock and idle timeout
+sleep 3
+sudo -u ${USER} DISPLAY=:99 \
+  DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${UID_NUM}/bus \
+  gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null || true
+sudo -u ${USER} DISPLAY=:99 \
+  DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${UID_NUM}/bus \
+  gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null || true
 
 echo ""
 echo "============================================"
